@@ -13,21 +13,37 @@
     <div class="product">
 
         <div class="product-image">
-         <!-- v-bind dynamically binds an attribute(src) to an expression{{ image }}. Shorthand :src="image" :alt="description" :href="url" :title="tooltip" :class="isActive" :style="isStyled" :disabled="isDisabled" -->
+         <!-- v-bind dynamically binds an attribute(src) to an expression{{ image }} -->
+         <!-- Shorthand :src="image" :alt="description" :href="url" :title="tooltip" :class="isActive" :style="isStyled" :disabled="isDisabled" -->
             <img v-bind:src="image" >            
         </div>        
         
         <div class="product-info">
-            <h1>{{ product }}</h1>
-            <!-- using v-show is more performant than v-if. adding or removing elements from the DOM -->
-            <p v-show="inStock">In Stock</p>
+            <h1>{{ title }}</h1>
+            <!-- using v-show is more performant than v-if. Adds attribute of display: none; as opposed to adding or removing elements from the DOM -->
+            <p v-if="inStock">In Stock</p>
+            <p v-else :class="{ outOfStock: !inStock }">Out Of Stock</p>
+
 
             <ul>
               <li v-for="detail in details">{{ detail }}</li>
             </ul>
 
-            <div>
-              <p v-for="variant in variants">{{ variant.variantColor }}</p>
+            <div v-for="(variant, index) in variants"
+                 :key="variant.variantId"
+                 class="color-box"
+                 :style="{ backgroundColor: variant.variantColor }"
+                 @mouseover="updateProduct(index)">
+            </div>
+
+            <!-- Vue event listener -->
+            <!-- Shorthand for v-on is @ Example @click or @mouseover -->
+            <button v-on:click="addToCart"
+                    :disabled="!inStock"
+                    :class="{ disabledButton: !inStock }">Add To Cart</button>
+
+            <div class="cart">
+              <p>Cart({{ cart }})</p>
             </div>
 
         </div>
