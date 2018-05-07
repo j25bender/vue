@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product App</title>
+  <link href="style.css" rel="stylesheet">
+</head>
+<body>
+
+  <div class="nav-bar"></div>
+
+  <div id="app">
+    <div class="product">
+
+        <div class="product-image">
+         <!-- v-bind dynamically binds an attribute(src) to an expression{{ image }}. Shorthand :src="image" :alt="description" :href="url" :title="tooltip" :class="isActive" :style="isStyled" :disabled="isDisabled" -->
+            <img v-bind:src="image" >            
+        </div>        
+        
+        <div class="product-info">
+            <h1>{{ product }}</h1>
+            <!-- using v-show is more performant than v-if. adding or removing elements from the DOM -->
+            <p v-show="inStock">In Stock</p>
+
+            <ul>
+              <li v-for="detail in details">{{ detail }}</li>
+            </ul>
+
+            <div>
+              <p v-for="variant in variants">{{ variant.variantColor }}</p>
+            </div>
+
+        </div>
+
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
