@@ -2,6 +2,8 @@
 
 //Vue is reactive
 
+const eventBus = new Vue()
+
 Vue.component('product', {
   props: {
     premium: {
@@ -45,6 +47,8 @@ Vue.component('product', {
 
       </div>
 
+      <product-tabs :reviews="reviews"></product-tabs>
+
     </div>
   `,
   data() {
@@ -68,7 +72,8 @@ Vue.component('product', {
             variantQuantity: 10
           }
         ],
-        onSale: true
+        onSale: true,
+        reviews: []
       }
     },
     methods: {
@@ -96,6 +101,118 @@ Vue.component('product', {
     },
     shipping() {
       return this.premium ? 'FREE' : '$2.99'
+    }
+  },
+  mounted() {
+    eventBus.$on('review-submitted', productReview => {
+      this.reviews.push(productReview)
+    })
+  }
+})
+
+Vue.component('product-review', {
+  template: `
+    <form class='review-form' @submit.prevent='onSubmit'>
+
+    <p v-show='errors.length'>
+      <b>Please correct the following error(s):</b>
+      <ul>
+        <li v-for='error in errors'>{{ error }}</li>
+      </ul>
+    </p>
+
+      <p>
+        <label for='name'>Name:</label>
+        <input id='name' v-model='name' placeholder='Name'></input>
+      </p>
+
+      <p>
+        <label for='review'>Review:</label>
+        <textarea id='review' v-model='review'></textarea>
+      </p>
+
+      <p>
+        <label for='rating'>Rating:</label>
+        <select id='rating' v-model.number='rating'>
+          <option>5</option>
+          <option>4</option>
+          <option>3</option>
+          <option>2</option>
+          <option>1</option>
+        </select>
+      </p>
+
+      <p>
+        <input type='submit' value='Submit'>
+      </p>
+    </form>
+  `,
+  data() {
+    return {
+      name: null,
+      review: null,
+      rating: null,
+      errors: []
+    }
+  },
+  methods: {
+    onSubmit() {
+      if(this.name && this.review && this.rating) {
+        let productReview = {
+          name: this.name,
+          review: this.review,
+          rating: this.rating
+        }
+        eventBus.$emit('review-submitted', productReview)
+        this.name = null,
+        this.review = null,
+        this.rating = null
+      } 
+      else {
+        if(!this.name) { this.errors.push('Name Required!') }
+        if(!this.review) { this.errors.push('Review Required!') }
+        if(!this.rating) { this.errors.push('Rating Required!') }
+      } 
+    }
+  }
+})
+
+Vue.component('product-tabs', {
+  props: {
+    reviews: {
+      type: Array,
+      required: true
+    }
+  },
+  template: `
+    <div>
+      <span class='tab'
+            :class='{ activeTab: selectedTab === tab }'
+            v-for='(tab, index) in tabs'
+            :key='index'
+            @click='selectedTab = tab'>
+            {{ tab }}</span>
+
+      <div v-show="selectedTab === 'Reviews'">
+      <h2>Reviews</h2>
+      <p v-show='!reviews.length'>There are no reviews yet.</p>
+      <ul>
+        <li v-for="review in reviews">
+          <p>{{ review.name }}</p>
+          <p>{{ review.review }}</p>
+          <p>{{ review.rating }}</p>
+        </li>
+      </ul>
+    </div>
+    
+    <product-review v-show="selectedTab === 'Make A Review'"></product-review>
+
+    </div>
+  `,
+  data() {
+    return {
+      tabs: ['Reviews', 'Make A Review'],
+      selectedTab: 'Reviews'
     }
   }
 })
